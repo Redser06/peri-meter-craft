@@ -49,16 +49,16 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-primary/20 via-background to-accent/20">
+    <div className="min-h-screen w-full flex items-center justify-center p-6 bg-background">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-2">
             PeriMeter Training
           </h1>
-          <p className="text-muted-foreground">Enterprise Training Platform</p>
+          <p className="text-sm text-muted-foreground">Enterprise Training Platform</p>
         </div>
 
-        <Card className="shadow-lg border-primary/20">
+        <Card className="shadow-sm border-border">
           <CardHeader>
             <CardTitle>Welcome</CardTitle>
             <CardDescription>Sign in to access your training portal</CardDescription>
