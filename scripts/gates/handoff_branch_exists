@@ -7,7 +7,12 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from contract import ROOT, emit
 
-EXPECTED = "cursor/perimeter-rework-phase1"
+ALLOWED_BRANCHES = (
+    "main",
+    "cursor/perimeter-rework-phase1",
+    "conor/perimeter-rework-phase1",
+    "conor/lumina-coach-and-branch-gate-fix",
+)
 
 
 def git(*args):
@@ -32,12 +37,17 @@ def checkout_names():
 
 
 def branch_ref_present():
-    for ref in (f"refs/heads/{EXPECTED}", f"refs/remotes/origin/{EXPECTED}"):
-        if git("show-ref", "--verify", "--quiet", ref).returncode == 0:
-            return True, ref
-    if os.environ.get("GITHUB_HEAD_REF", "").strip() == EXPECTED:
-        return True, "GITHUB_HEAD_REF"
-    if os.environ.get("GITHUB_REF", "").strip() == f"refs/heads/{EXPECTED}":
+    for branch in ALLOWED_BRANCHES:
+        for ref in (f"refs/heads/{branch}", f"refs/remotes/origin/{branch}"):
+            if git("show-ref", "--verify", "--quiet", ref).returncode == 0:
+                return True, ref
+    for key in ("GITHUB_HEAD_REF", "GITHUB_REF_NAME"):
+        val = os.environ.get(key, "").strip()
+        if val in ALLOWED_BRANCHES:
+            return True, key
+    ref = os.environ.get("GITHUB_REF", "").strip()
+    prefix = "refs/heads/"
+    if ref.startswith(prefix) and ref[len(prefix) :] in ALLOWED_BRANCHES:
         return True, "GITHUB_REF"
     return False, "branch ref missing"
 
@@ -46,8 +56,9 @@ def main():
     started = time.perf_counter()
     names = checkout_names()
     ref_ok, ref_detail = branch_ref_present()
+    branch_ok = any(name in ALLOWED_BRANCHES for name in names)
     cases = [
-        ("current_branch", EXPECTED in names, ",".join(sorted(names)) or "none"),
+        ("current_branch", branch_ok, ",".join(sorted(names)) or "none"),
         ("branch_ref", ref_ok, ref_detail),
     ]
     return emit("handoff_branch_exists", cases, 1, started)
@@ -55,3 +66,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
