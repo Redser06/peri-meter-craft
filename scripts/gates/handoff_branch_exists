@@ -10,13 +10,45 @@ from contract import ROOT, emit
 EXPECTED = "cursor/perimeter-rework-phase1"
 
 
+def git(*args):
+    return subprocess.run(["git", "-C", ROOT, *args], capture_output=True, text=True)
+
+
+def checkout_names():
+    names = set()
+    head = git("rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
+    if head:
+        names.add(head)
+    # pull_request checkouts are detached merge commits. GitHub still records the head branch.
+    for key in ("GITHUB_HEAD_REF", "GITHUB_REF_NAME"):
+        value = os.environ.get(key, "").strip()
+        if value:
+            names.add(value)
+    ref = os.environ.get("GITHUB_REF", "").strip()
+    prefix = "refs/heads/"
+    if ref.startswith(prefix):
+        names.add(ref[len(prefix) :])
+    return names
+
+
+def branch_ref_present():
+    for ref in (f"refs/heads/{EXPECTED}", f"refs/remotes/origin/{EXPECTED}"):
+        if git("show-ref", "--verify", "--quiet", ref).returncode == 0:
+            return True, ref
+    if os.environ.get("GITHUB_HEAD_REF", "").strip() == EXPECTED:
+        return True, "GITHUB_HEAD_REF"
+    if os.environ.get("GITHUB_REF", "").strip() == f"refs/heads/{EXPECTED}":
+        return True, "GITHUB_REF"
+    return False, "branch ref missing"
+
+
 def main():
     started = time.perf_counter()
-    head = subprocess.check_output(["git", "-C", ROOT, "rev-parse", "--abbrev-ref", "HEAD"], text=True).strip()
-    listed = subprocess.run(["git", "-C", ROOT, "show-ref", "--verify", "--quiet", f"refs/heads/{EXPECTED}"])
+    names = checkout_names()
+    ref_ok, ref_detail = branch_ref_present()
     cases = [
-        ("current_branch", head == EXPECTED, head),
-        ("branch_ref", listed.returncode == 0, "branch ref missing"),
+        ("current_branch", EXPECTED in names, ",".join(sorted(names)) or "none"),
+        ("branch_ref", ref_ok, ref_detail),
     ]
     return emit("handoff_branch_exists", cases, 1, started)
 
