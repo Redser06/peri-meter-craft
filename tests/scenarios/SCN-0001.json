@@ -1,0 +1,55 @@
+{
+  "id": "SCN-0001",
+  "persona": "Trainee-PM-Novice",
+  "title": "Novice misconception then fast mastery",
+  "learner_id": "trainee-nia",
+  "goal": "Write a first useful prompt and build a prototype",
+  "hitl": [],
+  "script": {
+    "Diagnose": [
+      {
+        "diagnosis": {
+          "placed": true,
+          "tier": "novice"
+        },
+        "mastery": {
+          "prompting": 0.2
+        }
+      }
+    ],
+    "Plan": [
+      {
+        "plan": {
+          "skill": "prompting",
+          "rationale": "Start with a single clear prototype prompt"
+        }
+      }
+    ],
+    "Assess": [
+      {
+        "last_assessment": {
+          "score": 0.42,
+          "error_class": "misconception",
+          "confidence": 0.35
+        }
+      },
+      {
+        "last_assessment": {
+          "score": 0.93,
+          "error_class": null,
+          "confidence": 0.9
+        },
+        "mastery": {
+          "prompting": 0.9
+        }
+      }
+    ]
+  },
+  "expected_path": [
+    "Diagnose",
+    "Plan",
+    "Assess",
+    "Remediate",
+    "Assess"
+  ]
+}

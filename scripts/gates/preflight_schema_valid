@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from contract import ROOT, emit
+
+
+def main():
+    started = time.perf_counter()
+    path = os.path.join(ROOT, "gates", "perimeter-phase1.graph.yaml")
+    text = open(path, encoding="utf-8").read()
+    checks = [
+        ("workflow", "workflow: perimeter-phase1" in text),
+        ("version", "version: 1" in text),
+        ("branch", "branch: conor/perimeter-rework-phase1" in text),
+        ("base_sha", "base_sha: e98530a7fca251060890458559b68ac59a8a548f" in text),
+        ("fail_closed", "on_cap_unknown: fail_closed" in text),
+    ]
+    cases = [(name, ok, "present" if ok else "missing") for name, ok in checks]
+    return emit("preflight_schema_valid", cases, 1, started)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

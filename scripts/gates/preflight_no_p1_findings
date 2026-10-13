@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+import os
+import subprocess
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from contract import ROOT, emit
+
+
+def main():
+    started = time.perf_counter()
+    # P1 check: verify .env is not tracked
+    tracked_env = subprocess.run(["git", "-C", ROOT, "ls-files", "--error-unmatch", ".env"], capture_output=True, text=True)
+    # P1 check: verify vitest and test scripts are present
+    package_json = open(os.path.join(ROOT, "package.json"), encoding="utf-8").read()
+    test_present = '"test": "vitest run"' in package_json
+    cases = [
+        ("env_untracked", tracked_env.returncode != 0, "env is untracked"),
+        ("test_harness_present", test_present, "vitest test harness present"),
+    ]
+    return emit("preflight_no_p1_findings", cases, 1, started)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

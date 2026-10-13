@@ -1,0 +1,46 @@
+{
+  "id": "SCN-0002",
+  "persona": "Trainee-PM-Intermediate",
+  "title": "Syntax slip self-corrected with hint",
+  "learner_id": "trainee-liam",
+  "goal": "Author and test a Pull Request",
+  "hitl": [],
+  "script": {
+    "Diagnose": [
+      {
+        "diagnosis": {
+          "placed": true,
+          "tier": "intermediate"
+        },
+        "mastery": {
+          "git_pr": 0.6
+        }
+      }
+    ],
+    "Assess": [
+      {
+        "last_assessment": {
+          "score": 0.65,
+          "error_class": "slip",
+          "confidence": 0.8
+        }
+      },
+      {
+        "last_assessment": {
+          "score": 0.95,
+          "error_class": null,
+          "confidence": 0.95
+        },
+        "mastery": {
+          "git_pr": 0.95
+        }
+      }
+    ]
+  },
+  "expected_path": [
+    "Diagnose",
+    "Assess",
+    "HintRetry",
+    "Assess"
+  ]
+}

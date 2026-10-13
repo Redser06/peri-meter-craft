@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+env:
+  LLM_PROVIDER: fake
+  PERIMETER_CI_NETWORK: none
+  PERIMETER_CI_PAID_KEYS: none
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        if: ${{ !cancelled() }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        if: ${{ !cancelled() }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        if: ${{ !cancelled() }}
+        run: npm ci
+
+      - name: Lint
+        if: ${{ !cancelled() }}
+        run: npm run lint
+
+      - name: Test
+        if: ${{ !cancelled() }}
+        run: npm test
+
+      - name: Build
+        if: ${{ !cancelled() }}
+        run: npm run build
+
+      - name: Validate graph
+        if: ${{ !cancelled() }}
+        run: python3 tools/eval_runner.py validate-graph --graph gates/perimeter-phase1.graph.yaml --registry gates/perimeter-phase1.registry.json
+
+      - name: Eval cost cap fail closed
+        if: ${{ !cancelled() }}
+        run: python3 scripts/gates/check_ledger_cap.py
+
+      - name: Run eval gates
+        if: ${{ !cancelled() }}
+        run: python3 scripts/gates/run_all.py
+
+      - name: Report gate results
+        if: ${{ !cancelled() }}
+        run: python3 scripts/gates/print_report.py

@@ -1,0 +1,12 @@
+{
+  "_doc": "Gate registry (workflow-graph-template-v2 §1b). Every gate id referenced by a graph node must be listed here; tools/eval_runner.py validate-graph enforces it.",
+  "gates": {
+    "lessons_read_ok":                  {"script": "scripts/gates/lessons_read_ok", "min_cases": 1, "timeout_s": 60,  "cost": "cheap"},
+    "preflight_schema_valid":           {"script": "scripts/gates/preflight_schema_valid", "min_cases": 1, "timeout_s": 60, "cost": "cheap"},
+    "preflight_no_open_approvals":      {"script": "scripts/gates/preflight_no_open_approvals", "min_cases": 1, "timeout_s": 60, "cost": "cheap"},
+    "preflight_no_p1_findings":         {"script": "scripts/gates/preflight_no_p1_findings", "min_cases": 1, "timeout_s": 60, "cost": "cheap"},
+    "handoff_branch_exists":            {"script": "scripts/gates/handoff_branch_exists", "min_cases": 1, "timeout_s": 60, "cost": "cheap"},
+    "ci_all_required_checks_pass":      {"script": "scripts/gates/ci_all_required_checks_pass", "min_cases": 1, "timeout_s": 900, "cost": "expensive"},
+    "proofs_every_ac_has_location":     {"script": "scripts/gates/proofs_every_ac_has_location", "min_cases": 1, "timeout_s": 120, "cost": "cheap"}
+  }
+}

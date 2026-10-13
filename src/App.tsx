@@ -8,6 +8,10 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import Learn from "./pages/Learn";
+import LearnTrack from "./pages/LearnTrack";
+import ManagerRoi from "./pages/ManagerRoi";
+import ManagerTeam from "./pages/ManagerTeam";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +26,10 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/learn" element={<Learn />} />
+            <Route path="/learn/track/:id" element={<LearnTrack />} />
+            <Route path="/manager/roi" element={<ManagerRoi />} />
+            <Route path="/manager/team" element={<ManagerTeam />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
