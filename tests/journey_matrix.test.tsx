@@ -45,11 +45,13 @@ describe("journey routes", () => {
     const text = await mount("/manager/roi");
     expect(text).toContain("Return");
     expect(text).toContain("guesstimates");
+    expect(text).toContain("does not contact a provider");
   });
 
   it("mounts manager team at /manager/team", async () => {
     const text = await mount("/manager/team");
     expect(text).toContain("Team");
     expect(text).toContain("No learners");
+    expect(text).toContain("does not contact a provider");
   });
 });

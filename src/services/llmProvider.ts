@@ -13,9 +13,10 @@ export function resolveProvider(value: string | undefined | null): "fake" {
 export function prepareModelCall(
   ledgerRaw: string | null | undefined,
   providerEnv: string | undefined | null,
+  estimateUsd = 0,
 ): "fake" {
   const provider = resolveProvider(providerEnv);
-  const decision = evaluateLedger(ledgerRaw);
+  const decision = evaluateLedger(ledgerRaw, estimateUsd);
   if (!decision.allowed) {
     throw new Error(`cost_cap_blocked:${decision.reason}`);
   }

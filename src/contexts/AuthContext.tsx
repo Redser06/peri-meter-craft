@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session, type AuthError } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { User, Session, AuthError } from "@supabase/supabase-js";
+import { getSupabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
 type AppRole = "admin" | "hiring_manager" | "trainee" | "trainer" | "compliance" | "exec";
@@ -40,6 +40,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -88,6 +94,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    const supabase = getSupabase();
+    if (!supabase) {
+      return { error: new AuthError("Supabase credentials are not configured") };
+    }
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -96,6 +106,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
+    const supabase = getSupabase();
+    if (!supabase) {
+      return { error: new AuthError("Supabase credentials are not configured") };
+    }
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -112,7 +126,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const supabase = getSupabase();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     setDemoMode(null);
     navigate("/auth");
   };

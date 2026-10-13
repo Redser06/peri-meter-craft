@@ -41,6 +41,7 @@ export default function ManagerRoi() {
       <div style={{ maxWidth: "40rem", margin: "0 auto", padding: "2rem 1.25rem" }}>
         <p style={{ fontFamily: stitchTokens.fontMono, letterSpacing: "0.08em", fontSize: "0.75rem" }}>MANAGER</p>
         <h1>Return</h1>
+        <p role="status">Model calls are off. This page does not contact a provider.</p>
         <p>
           Rates are guesstimates and overridable. Defaults come from the rate configuration
           ({ROI_DEFAULTS.status}).

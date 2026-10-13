@@ -16,6 +16,8 @@ jobs:
       - name: Checkout
         if: ${{ !cancelled() }}
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         if: ${{ !cancelled() }}
@@ -23,6 +25,10 @@ jobs:
         with:
           node-version: "22"
           cache: npm
+
+      - name: Assert eval network stays closed
+        if: ${{ !cancelled() }}
+        run: python3 scripts/gates/assert_closed_network.py
 
       - name: Install
         if: ${{ !cancelled() }}

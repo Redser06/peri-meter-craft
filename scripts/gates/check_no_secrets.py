@@ -52,11 +52,17 @@ def main():
         if any(pattern in text for pattern in PATTERNS):
             leaks.append(rel)
 
+    client_path = os.path.join(ROOT, "src", "integrations", "supabase", "client.ts")
+    client = open(client_path, encoding="utf-8").read() if os.path.isfile(client_path) else ""
+    invented_host = "https://" + "example.invalid"
+    host_ok = invented_host not in client and "console.warn" in client
+
     cases = [
         ("env_untracked", tracked_env.returncode != 0, "environment file is still tracked"),
         ("gitignore", ignore_ok, "gitignore must ignore .env and .env.* while keeping .env.example"),
         ("example_placeholders", names_ok and values_ok and pattern_ok and bool(example), "example must use placeholders only"),
         ("no_key_patterns", not leaks, ",".join(leaks) or "clean"),
+        ("no_invented_supabase_host", host_ok, "client must warn and must not invent a host"),
     ]
     return emit("perimeter_no_secrets_committed", cases, 4, started)
 

@@ -22,7 +22,9 @@ def main():
     ).splitlines()
     cases = []
     for rel in listed:
-        if rel in EXEMPT or not os.path.isfile(os.path.join(ROOT, rel)):
+        if rel in EXEMPT or rel == "gate-results" or rel.startswith("gate-results/"):
+            continue
+        if not os.path.isfile(os.path.join(ROOT, rel)):
             continue
         blob = open(os.path.join(ROOT, rel), "rb").read()
         if b"\0" in blob:

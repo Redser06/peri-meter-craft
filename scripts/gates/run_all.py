@@ -12,7 +12,13 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from contract import RESULTS, ROOT, emit
 
-HUMAN_PENDING = {"perimeter_key_rotation_recorded"}
+# Human gates stay pending only while Conor's approval file is absent.
+# A present file that is not his countersignature fails the suite.
+HUMAN_APPROVAL_FILES = {
+    "perimeter_key_rotation_recorded": "approvals/PERI-SUPABASE-KEY-ROTATION.json",
+    "perimeter_approval_recorded": "approvals/PERI-PHASE1-GRAPH-V2.json",
+    "preflight_no_open_approvals": "approvals/PERI-PHASE1-GRAPH-V2.json",
+}
 GRAPH = os.path.join(ROOT, "projects", "perimeter", "perimeter-phase1.graph-v2.yaml")
 REGISTRIES = [
     os.path.join(ROOT, "tools", "gates", "registry.json"),
@@ -89,7 +95,8 @@ def verify_contract(gate_id, min_cases, timeout_s):
     os.makedirs(RESULTS, exist_ok=True)
     spec_path = os.path.join(RESULTS, f"{gate_id}.spec.json")
     result_path = os.path.join(RESULTS, f"{gate_id}.json")
-    spec = {"gate_id": gate_id, "min_cases": min_cases, "timeout_s": timeout_s, "repo": ROOT}
+    # Specs live in gate-results/. ".." is the repo root. Do not write an absolute path.
+    spec = {"gate_id": gate_id, "min_cases": min_cases, "timeout_s": timeout_s, "repo": ".."}
     json.dump(spec, open(spec_path, "w", encoding="utf-8"))
     proc = subprocess.run(
         [
@@ -100,8 +107,6 @@ def verify_contract(gate_id, min_cases, timeout_s):
             spec_path,
             "--result",
             result_path,
-            "--repo",
-            ROOT,
             "--no-lesson",
             "--registry",
             "tools/gates/registry.json",
@@ -155,8 +160,10 @@ def main():
                 timeout=timeout_s,
             )
             code = proc.returncode
-        if gate_id in HUMAN_PENDING:
-            print(f"PENDING HUMAN {gate_id}")
+        approval_rel = HUMAN_APPROVAL_FILES.get(gate_id)
+        approval_absent = approval_rel is not None and not os.path.isfile(os.path.join(ROOT, approval_rel))
+        if code != 0 and approval_absent:
+            print(f"PENDING HUMAN {gate_id}: approval file absent, waiting for Conor")
             continue
         if code != 0:
             failed.append(gate_id)

@@ -31,6 +31,16 @@ def main():
             "LLM_PROVIDER: fake" in text and "PERIMETER_CI_PAID_KEYS: none" in text,
             "provider must be fake and paid keys must be none",
         ),
+        (
+            "full_history",
+            "fetch-depth: 0" in text,
+            "checkout must fetch full history so the protected-files base commit is present",
+        ),
+        (
+            "network_enforced",
+            "assert_closed_network.py" in text and "PERIMETER_CI_NETWORK: none" in text,
+            "closed network must be an executed check, not only an env label",
+        ),
     ]
     return emit("perimeter_ci_workflow_contract", cases, 4, started)
 

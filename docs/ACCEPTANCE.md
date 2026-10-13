@@ -31,5 +31,5 @@
 | Tracked files do not contain local machine paths | scripts/gates/check_no_local_paths.py |
 | The readme serves trainees and managers | README.md |
 | Key rotation stays a human step | approvals/KEY_ROTATION_PENDING.md |
-| Graph approval is bound to the graph file hash | approvals/PERI-PHASE1-GRAPH-V2.json |
+| Graph approval is bound to the graph file hash and is pending Conor's countersignature | approvals/GRAPH_APPROVAL_PENDING.md |
 | Lessons from the pack and the review were read | docs/lessons-read.json |
