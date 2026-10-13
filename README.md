@@ -1,73 +1,52 @@
-# Welcome to your Lovable project
+---
+project: perimeter
+audiences: [trainee, manager]
+track_count: 11
+tracks:
+  - { id: "01", title: "Problem framing" }
+  - { id: "02", title: "Outcome specification" }
+  - { id: "03", title: "Discovery interviews" }
+  - { id: "04", title: "Opportunity sizing" }
+  - { id: "05", title: "Solution shaping" }
+  - { id: "06", title: "Experiment design" }
+  - { id: "07", title: "Delivery planning" }
+  - { id: "08", title: "Instrumentation" }
+  - { id: "09", title: "Stakeholder narrative" }
+  - { id: "10", title: "Launch and adoption" }
+  - { id: "11", title: "Return review" }
+---
 
-## Project info
+# Perimeter
 
-**URL**: https://lovable.dev/projects/c652b7e1-71fd-4f21-b390-a70fadc952d1
+Perimeter is a brand-neutral workspace for product managers learning to ship with AI. It is written for two audiences: trainees moving through the curriculum, and managers reading time saved.
 
-## How can I edit this code?
+ROI rates are guesstimates and overridable. The only copy of the default rates lives in `src/config/roiDefaults.ts`.
 
-There are several ways of editing your application.
+## Trainee
 
-**Use Lovable**
+Open `/learn` for the eleven tracks, then `/learn/track/:id` for one track. Tracks are a directed graph: finish the prerequisite before the next track.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c652b7e1-71fd-4f21-b390-a70fadc952d1) and start prompting.
+## Manager
 
-Changes made via Lovable will be committed automatically to this repo.
+Open `/manager/roi` for the return estimate. Counts and rates are inputs, so a manager can override the guesstimate defaults. Open `/manager/team` for assigned learners.
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Local development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm ci
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Copy `.env.example` to `.env` and fill in the placeholder names with your own project values. Do not commit `.env`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Checks
 
-**Use GitHub Codespaces**
+```sh
+npm run lint
+npm test
+npm run build
+python3 tools/eval_runner.py validate-graph --graph projects/perimeter/perimeter-phase1.graph-v2.yaml --registry tools/gates/registry.json --registry gates/perimeter-phase1.registry.json
+python3 scripts/gates/run_all.py
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c652b7e1-71fd-4f21-b390-a70fadc952d1) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Continuous integration runs those checks with a fake model provider, no paid keys, and no outbound eval calls. The monthly model-spend cap fails closed when the ledger is missing, unparseable, or exhausted.

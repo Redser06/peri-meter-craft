@@ -1,0 +1,7 @@
+[
+  {"name": "under_cap", "raw": "{\"spend_usd\": 1}", "allowed": true, "reason": "under_cap"},
+  {"name": "at_cap", "raw": "{\"spend_usd\": 5}", "allowed": false, "reason": "at_or_over_cap"},
+  {"name": "over_cap", "raw": "{\"spend_usd\": 6}", "allowed": false, "reason": "at_or_over_cap"},
+  {"name": "missing", "raw": null, "allowed": false, "reason": "missing"},
+  {"name": "unparseable", "raw": "{", "allowed": false, "reason": "unparseable"}
+]

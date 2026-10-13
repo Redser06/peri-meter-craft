@@ -1,17 +1,29 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session } from "@supabase/supabase-js";
+import { User, Session, type AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
 type AppRole = "admin" | "hiring_manager" | "trainee" | "trainer" | "compliance" | "exec";
+
+interface RoleRow {
+  role: AppRole;
+}
+
+interface RoleClient {
+  from: (table: string) => {
+    select: (columns: string) => {
+      eq: (column: string, value: string) => PromiseLike<{ data: RoleRow[] | null }>;
+    };
+  };
+}
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   roles: AppRole[];
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   demoMode: AppRole | null;
   setDemoMode: (role: AppRole | null) => void;
@@ -37,12 +49,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           // Fetch user roles after setting user
           setTimeout(async () => {
-            const { data: userRoles } = await (supabase as any)
+            const { data: userRoles } = await (supabase as unknown as RoleClient)
               .from("user_roles")
               .select("role")
               .eq("user_id", session.user.id);
-            
-            setRoles(userRoles?.map((r: any) => r.role as AppRole) ?? []);
+
+            setRoles(userRoles?.map((row) => row.role) ?? []);
           }, 0);
         } else {
           setRoles([]);
@@ -59,12 +71,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (session?.user) {
         setTimeout(async () => {
-          const { data: userRoles } = await (supabase as any)
+          const { data: userRoles } = await (supabase as unknown as RoleClient)
             .from("user_roles")
             .select("role")
             .eq("user_id", session.user.id);
-          
-          setRoles(userRoles?.map((r: any) => r.role as AppRole) ?? []);
+
+          setRoles(userRoles?.map((row) => row.role) ?? []);
           setLoading(false);
         }, 0);
       } else {

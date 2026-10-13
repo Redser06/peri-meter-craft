@@ -1,0 +1,18 @@
+{
+  "read": [
+    {
+      "source": "instruction-pack",
+      "commit": "553a766fb16cbe995798bf9b066878deabf099b5"
+    },
+    {
+      "source": "REVIEW-v2",
+      "date": "2026-10-13"
+    },
+    {
+      "source": "perimeter-phase1.graph-v2"
+    },
+    {
+      "source": "perimeter-phase1.registry-v2"
+    }
+  ]
+}

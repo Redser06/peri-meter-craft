@@ -1,0 +1,11 @@
+{
+  "ref": "PERI-PHASE1-GRAPH-V2",
+  "status": "approved",
+  "approver": "phase-1-task",
+  "signed_by_conor": false,
+  "note": "Recorded because the phase-1 task authorized this build against the pinned graph. This is not a countersignature. Key rotation remains a separate human approval and is intentionally absent.",
+  "graph_sha": "6a6d3991260466205210913a6bad1ab3b6e3df60612b52a96ff48f4c6fcd4c6f",
+  "resolutions": {
+    "protected_files_list": "supabase/config.toml, .gitignore, and supabase/migrations. The .gitignore environment entries added during cleanup are the pre-approved exception."
+  }
+}

@@ -1,0 +1,132 @@
+{
+ "project": "perimeter",
+ "version": 2,
+ "gates": {
+  "perimeter_approval_recorded": {
+   "script": "python3 scripts/gates/check_human_approval.py --ref PERI-PHASE1-GRAPH-V2 --bind graph_sha",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_blueprint_track_gates": {
+   "script": "python3 scripts/gates/check_blueprint_track_gates.py  # every track in BLUEPRINT names an eval gate id that exists in the registry",
+   "min_cases": 11,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_ci_workflow_contract": {
+   "script": "python3 scripts/gates/check_ci_workflow.py  # report/upload steps use if: ${{ !cancelled() }}; no secrets.*, no curl/wget, LLM provider=fake",
+   "min_cases": 4,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_curriculum_dag_acyclic": {
+   "script": "python3 scripts/gates/check_curriculum_acyclic.py --tracks-from docs/TRANSFORMATION_BLUEPRINT.md",
+   "min_cases": 11,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_docs_diagrams_render": {
+   "script": "python3 scripts/gates/check_mermaid_types.py  # only flowchart/sequence/stateDiagram; no 'journey' blocks",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_eval_suite_deterministic": {
+   "script": "npx vitest run tests/curriculum_evals.test.ts --reporter=json",
+   "min_cases": 25,
+   "timeout_s": 120,
+   "cost": "cheap"
+  },
+  "perimeter_journey_matrix_verified": {
+   "script": "npx vitest run tests/journey_matrix.test.ts --reporter=json",
+   "min_cases": 4,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_key_rotation_recorded": {
+   "script": "python3 scripts/gates/check_human_approval.py --ref PERI-SUPABASE-KEY-ROTATION",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_ledger_cap_enforced": {
+   "script": "python3 scripts/gates/check_ledger_cap.py  # cases: under cap pass, at cap block, over block, missing ledger block, unparseable block",
+   "min_cases": 5,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_neutral_brand_clean": {
+   "script": "scripts/gates/check_neutral_branding.py",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_no_local_paths": {
+   "script": "python3 scripts/gates/check_no_local_paths.py  # no /Users/, /home/, C:\\\\ paths in tracked files",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_no_secrets_committed": {
+   "script": "python3 scripts/gates/check_no_secrets.py  # .env not tracked (git ls-files), .env in .gitignore, .env.example exists with placeholders only, no key patterns in tracked files",
+   "min_cases": 4,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_protected_files": {
+   "script": "git diff --exit-code e98530a7fca251060890458559b68ac59a8a548f -- supabase/config.toml .gitignore supabase/migrations",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_pydantic_schema_sync": {
+   "script": "python3 scripts/gates/check_state_delta.py",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_readme_rich_contract": {
+   "script": "scripts/gates/check_readme_contract.py",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_roi_inputs_parametrised": {
+   "script": "python3 scripts/gates/check_roi_inputs.py  # fails if 8.5/16/85 literals appear outside src/config/roiDefaults.ts",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_roi_monotonic_increasing": {
+   "script": "npx vitest run tests/roi_property.test.ts --reporter=json  # seeded property test: >=200 random (counts, rates) pairs; ROI non-decreasing in each count AND each rate; strictly increasing when rate>0; rejects negative/NaN rates",
+   "min_cases": 200,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_state_delta_valid": {
+   "script": "npx vitest run tests/state_delta.test.ts --reporter=json",
+   "min_cases": 50,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_stitch_token_valid": {
+   "script": "python3 scripts/gates/check_stitch_tokens.py",
+   "min_cases": 1,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_test_harness_present": {
+   "script": "python3 scripts/gates/check_test_harness.py  # package.json has test script + pinned vitest; scripts/gates exists",
+   "min_cases": 2,
+   "timeout_s": 60,
+   "cost": "cheap"
+  },
+  "perimeter_track_count_consistent": {
+   "script": "python3 scripts/gates/check_track_count.py --expected 11  # spec, README frontmatter and blueprint all list exactly 11 tracks",
+   "min_cases": 3,
+   "timeout_s": 60,
+   "cost": "cheap"
+  }
+ }
+}

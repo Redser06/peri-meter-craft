@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+import os
+import re
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from contract import ROOT, emit
+
+
+def rows(text):
+    found = []
+    for line in text.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip().strip("`") for cell in line.strip().strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        label = cells[0].lower()
+        if label in {"criterion", "acceptance criterion"} or set(label) <= {"-", ":", " "}:
+            continue
+        found.append((cells[0], cells[1]))
+    return found
+
+
+def main():
+    started = time.perf_counter()
+    text = open(os.path.join(ROOT, "docs", "ACCEPTANCE.md"), encoding="utf-8").read()
+    cases = []
+    for criterion, proof in rows(text):
+        path = proof.split()[0].strip("`")
+        ok = os.path.isfile(os.path.join(ROOT, path))
+        cases.append((criterion, ok, path if ok else f"missing {path}"))
+    if not cases:
+        cases.append(("table", False, "no acceptance rows"))
+    return emit("proofs_every_ac_has_location", cases, 1, started)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

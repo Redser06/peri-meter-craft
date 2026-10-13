@@ -11,14 +11,20 @@ const Index = () => {
         {/* Hero Section */}
         <div className="text-center space-y-6 mb-20">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
-            PeriMeter Training
+            Perimeter
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto">
-            Enterprise Training Platform for Product Managers
+            A brand-neutral workspace for product managers learning to ship with AI.
           </p>
-          <div className="pt-2">
-            <Button size="lg" onClick={() => navigate("/auth")} className="text-base px-8 py-5 font-medium hover:bg-primary/90 transition-colors">
-              Get Started <ArrowRight className="ml-2 h-5 w-5" />
+          <div className="pt-2 flex flex-wrap justify-center gap-3">
+            <Button size="lg" onClick={() => navigate("/learn")} className="text-base px-8 py-5 font-medium hover:bg-primary/90 transition-colors">
+              Trainee curriculum <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate("/manager/roi")} className="text-base px-8 py-5 font-medium">
+              Manager return
+            </Button>
+            <Button size="lg" variant="ghost" onClick={() => navigate("/auth")} className="text-base px-8 py-5 font-medium">
+              Sign in
             </Button>
           </div>
         </div>
