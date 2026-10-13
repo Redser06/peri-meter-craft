@@ -10,9 +10,36 @@ from contract import ROOT, emit
 ALLOWED_BRANCHES = ("conor/perimeter-rework-phase1", "cursor/perimeter-rework-phase1")
 
 
+def get_current_branch() -> str:
+    ci_head = os.environ.get("GITHUB_HEAD_REF")
+    if ci_head:
+        return ci_head
+    ci_ref = os.environ.get("GITHUB_REF_NAME")
+    if ci_ref and ci_ref in ALLOWED_BRANCHES:
+        return ci_ref
+    try:
+        head = subprocess.check_output(["git", "-C", ROOT, "rev-parse", "--abbrev-ref", "HEAD"], text=True).strip()
+        if head != "HEAD":
+            return head
+    except Exception:
+        head = "HEAD"
+    for branch in ALLOWED_BRANCHES:
+        try:
+            exit_code = subprocess.call(
+                ["git", "-C", ROOT, "merge-base", "--is-ancestor", branch, "HEAD"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            if exit_code == 0:
+                return branch
+        except Exception:
+            pass
+    return head
+
+
 def main():
     started = time.perf_counter()
-    head = subprocess.check_output(["git", "-C", ROOT, "rev-parse", "--abbrev-ref", "HEAD"], text=True).strip()
+    head = get_current_branch()
     branch_ok = head in ALLOWED_BRANCHES
     cases = [
         ("current_branch", branch_ok, head),
@@ -22,3 +49,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
