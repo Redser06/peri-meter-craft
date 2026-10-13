@@ -12,6 +12,7 @@ ALLOWED_BRANCHES = (
     "cursor/perimeter-rework-phase1",
     "conor/perimeter-rework-phase1",
     "conor/lumina-coach-and-branch-gate-fix",
+    "conor/port-trainer-assets-migration",
 )
 
 
