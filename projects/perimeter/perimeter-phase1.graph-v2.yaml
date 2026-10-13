@@ -1,0 +1,78 @@
+# PERI-METER Phase 1 work graph, v2 (Graph Engineer review 2026-10-13). See REVIEW-v2.md.
+workflow: perimeter-phase1
+version: 2
+# Instruction pack pinned below (written 2026-10-13).
+spec_refs: [redser-second-brain:projects/perimeter/SPEC-SUMMARY.md, redser-second-brain:projects/perimeter/instruction-pack.md@553a766fb16cbe995798bf9b066878deabf099b5]
+repo: Redser06/peri-meter-craft
+base: main
+base_sha: e98530a7fca251060890458559b68ac59a8a548f
+branch: cursor/perimeter-rework-phase1
+gate_runner: tools/eval_runner.py
+registry: [tools/gates/registry.json, tools/gates/perimeter-phase1.registry.json]
+max_retries_default: 2
+escalate_to: conor
+budget: {llm_usd_month_cap: 5.00, ci_provider: fake, ci_network: none, ci_paid_keys: none, on_cap_unknown: fail_closed}
+decisions: {track_count: 11, roi_defaults: {hoursPerPr: 8.5, hoursPerPrototype: 16, usdPerHour: 85, status: guesstimate_overridable}, dossier_gate_claim: "20 project gates", env_file: untrack_and_rotate}
+open_decisions: [protected_files_list]
+nodes:
+  - id: lessons_read
+    gate: [lessons_read_ok]
+  - id: preflight
+    deps: [lessons_read]
+    gate: [preflight_schema_valid, preflight_no_p1_findings, preflight_no_open_approvals]
+  - id: human_approval
+    deps: [preflight]
+    do: Conor approves this graph version and answers open_decisions (approval bound to graph sha)
+    gate: [perimeter_approval_recorded]
+  - id: cursor_handoff
+    deps: [human_approval]
+    do: Create cursor/perimeter-rework-phase1 from base_sha
+    gate: [handoff_branch_exists]
+  - id: env_cleanup
+    deps: [cursor_handoff]
+    do: FIRST STEP. git rm --cached .env; add .env and .env.* (except .env.example) to .gitignore; add .env.example with VITE_SUPABASE_PROJECT_ID/URL/PUBLISHABLE_KEY placeholders
+    gate: [perimeter_no_secrets_committed]
+  - id: key_rotation_approval
+    deps: [env_cleanup]
+    do: HUMAN. Conor rotates the Supabase publishable key in the Supabase dashboard and records approval; agents never touch the dashboard
+    gate: [perimeter_key_rotation_recorded]
+  - id: test_harness
+    deps: [key_rotation_approval]
+    do: Add vitest + npm "test" script and a Python stdlib gate dir; repo has neither today
+    gate: [perimeter_test_harness_present]
+  - id: readme_rebrand_spec
+    deps: [test_harness]
+    do: Dual-audience README (YAML frontmatter), strip corporate branding, TRANSFORMATION_BLUEPRINT with one eval gate per track
+    gate: [perimeter_neutral_brand_clean, perimeter_readme_rich_contract, perimeter_track_count_consistent, perimeter_blueprint_track_gates, perimeter_no_local_paths, perimeter_docs_diagrams_render]
+  - id: state_contract_delta
+    deps: [test_harness]
+    do: TypeScript models + Python state schemas for curriculum and ROI; ROI rates are typed inputs, not constants
+    gate: [perimeter_state_delta_valid, perimeter_pydantic_schema_sync]
+  - id: stitch_journey_spec
+    deps: [test_harness]
+    do: Stitch neutral-craft tokens and Trainee/Manager journey mappings
+    gate: [perimeter_stitch_token_valid, perimeter_journey_matrix_verified]
+  - id: eval_curriculum_spec
+    deps: [state_contract_delta, readme_rebrand_spec]
+    do: Curriculum DAG with exactly 11 tracks + property tests
+    gate: [perimeter_curriculum_dag_acyclic, perimeter_eval_suite_deterministic]
+  - id: roi_telemetry_spec
+    deps: [state_contract_delta]
+    do: ROI calculator computeROI(counts, rates{hoursPerPr, hoursPerPrototype, usdPerHour}) with defaults 8.5/16/85 (guesstimates) in src/config/roiDefaults.ts, overridable; ledger cap guard fails closed
+    gate: [perimeter_roi_inputs_parametrised, perimeter_roi_monotonic_increasing, perimeter_ledger_cap_enforced]
+  - id: ci
+    deps: [readme_rebrand_spec, stitch_journey_spec, eval_curriculum_spec, roi_telemetry_spec]
+    do: .github/workflows/ci.yml; report steps use if !cancelled(); no network, no secrets
+    gate: [perimeter_ci_workflow_contract, perimeter_no_secrets_committed, perimeter_protected_files, ci_all_required_checks_pass]
+  - id: proofs
+    deps: [ci]
+    gate: [proofs_every_ac_has_location]
+  - id: ready_for_review
+    deps: [proofs]
+    do: terminal; open PR from cursor/ branch; Conor merges
+edges:
+  on_gate_fail: {action: retry, target: self, max: 2, hook: runner_writes_lesson}
+  on_retry_exhausted: {action: escalate, to: escalate_to, payload: [failing_gate, reason_codes, lesson_path]}
+  special:
+    - {from: ci, on: protected_file_diff, action: escalate}
+    - {from: any, on: budget_unknown_or_exceeded, action: abort, note: fail closed}

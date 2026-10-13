@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+import os
+import subprocess
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from contract import ROOT, emit
+
+
+def run(cmd):
+    proc = subprocess.run(cmd, cwd=ROOT, text=True)
+    return proc.returncode == 0, f"exit {proc.returncode}"
+
+
+def main():
+    started = time.perf_counter()
+    cases = []
+    for name, cmd in (
+        ("lint", ["npm", "run", "lint"]),
+        ("test", ["npm", "test"]),
+        ("build", ["npm", "run", "build"]),
+    ):
+        ok, detail = run(cmd)
+        cases.append((name, ok, detail))
+    return emit("ci_all_required_checks_pass", cases, 1, started)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

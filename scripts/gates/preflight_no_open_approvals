@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+import json
+import os
+import re
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from contract import ROOT, emit
+
+APPROVAL = os.path.join(ROOT, "approvals", "PERI-PHASE1-GRAPH-V2.json")
+
+
+def conor_countersigned(data):
+    return (
+        isinstance(data, dict)
+        and data.get("ref") == "PERI-PHASE1-GRAPH-V2"
+        and data.get("status") == "approved"
+        and data.get("approver") == "conor"
+        and data.get("signed_by_conor") is True
+    )
+
+
+def main():
+    started = time.perf_counter()
+    graph = open(os.path.join(ROOT, "projects", "perimeter", "perimeter-phase1.graph-v2.yaml"), encoding="utf-8").read()
+    match = re.search(r"open_decisions:\s*\[([^\]]*)\]", graph)
+    names = [part.strip() for part in (match.group(1) if match else "").split(",") if part.strip()]
+    if not names:
+        names = ["open_decisions"]
+    if not os.path.isfile(APPROVAL):
+        detail = "pending Conor's countersignature; an agent must not close open_decisions"
+        cases = [(name, False, detail) for name in names]
+        return emit("preflight_no_open_approvals", cases, 1, started, pending_human=True)
+    approval = json.load(open(APPROVAL, encoding="utf-8"))
+    if not conor_countersigned(approval):
+        detail = "file is not Conor's countersignature"
+        cases = [(name, False, detail) for name in names]
+        return emit("preflight_no_open_approvals", cases, 1, started, pending_human=False)
+    resolutions = approval.get("resolutions") or {}
+    cases = []
+    for name in names:
+        text = str(resolutions.get(name, "")).strip()
+        cases.append((name, bool(text), text or "unresolved"))
+    return emit("preflight_no_open_approvals", cases, 1, started)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
